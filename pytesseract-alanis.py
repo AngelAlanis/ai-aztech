@@ -26,7 +26,8 @@ def imprimir_resultado(resultado):
          print(resultado)
 
 def guardar_imagen(nombre_archivo, imagen):
-    cv2.imwrite(nombre_archivo, imagen)
+    route = 'resources/output/' + nombre_archivo
+    cv2.imwrite(route, imagen)
 
 # Definir el PATH De PyTesseract.
 tess.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
