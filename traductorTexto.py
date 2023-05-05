@@ -10,6 +10,7 @@ import libretranslatepy
 textoPrueba1="Hello, world!"
 textoPrueba2="Olá Mundo!"
 textoPrueba3="Bonjour le monde!"
+textoPrueba4="Estoy en español"
 idiomaATraducir="es"
 
 #Hace la conexion con la api por medio de internet.
@@ -20,27 +21,29 @@ traductor = LibreTranslateAPI('https://libretranslate.org/')
 idiomaDetectado1=detect(textoPrueba1)
 idiomaDetectado2=detect(textoPrueba2)
 idiomaDetectado3=detect(textoPrueba3)
-
+idiomaDetectado4=detect(textoPrueba4)
+print(idiomaDetectado4)
 #Se usa un if para detectar si el idioma es español no haga nada
-if(idiomaDetectado1=='es'){
+if(idiomaDetectado1=='es'):
     print(f"El texto ya se encuentra en español: {textoPrueba1}")
-} elif(idiomaDetectado2=='es'){
+if(idiomaDetectado2=='es'):
     print(f"El texto ya se encuentra en español: {textoPrueba2}")
-}elif (idiomaDetectado3=='es'){
+if (idiomaDetectado3=='es'):
     print(f"El texto ya se encuentra en español: {textoPrueba3}")
-}else{ 
-  #Para traducir se usa la variable traductor que se conecta con la api y se pone de 
-  #parametros el texto que se va a traducir, el idioma detectado y el idioma al que 
-  #se va a traducir
-  traduccion1=traductor.translate(textoPrueba1,idiomaDetectado1,idiomaATraducir)
-  traduccion2=traductor.translate(textoPrueba2,idiomaDetectado2,idiomaATraducir)
-  traduccion3=traductor.translate(textoPrueba3,idiomaDetectado3,idiomaATraducir)
+if (idiomaDetectado4=='es'):
+    print(f"El texto ya se encuentra en español: {textoPrueba4}")
 
-  #Se imprime el texto ya traducido.
-  print(f"Texto original: {textoPrueba1} idioma: {idiomaDetectado1}")
-  print(f"Texto traducido: {traduccion1}")
-  print(f"Texto original: {textoPrueba2} idioma: {idiomaDetectado2}")
-  print(f"Texto traducido: {traduccion2}")
-  print(f"Texto original: {textoPrueba3} idioma: {idiomaDetectado3}")
-  print(f"Texto traducido: {traduccion3}")
-}
+
+#Para traducir se usa la variable traductor que se conecta con la api y se pone de   #parametros el texto que se va a traducir, el idioma detectado y el idioma al que 
+#se va a traducir
+traduccion1=traductor.translate(textoPrueba1,idiomaDetectado1,idiomaATraducir)
+traduccion2=traductor.translate(textoPrueba2,idiomaDetectado2,idiomaATraducir)
+traduccion3=traductor.translate(textoPrueba3,idiomaDetectado3,idiomaATraducir)
+
+#Se imprime el texto ya traducido.
+print(f"Texto original: {textoPrueba1} idioma: {idiomaDetectado1}")
+print(f"Texto traducido: {traduccion1}")
+print(f"Texto original: {textoPrueba2} idioma: {idiomaDetectado2}")
+print(f"Texto traducido: {traduccion2}")
+print(f"Texto original: {textoPrueba3} idioma: {idiomaDetectado3}")
+print(f"Texto traducido: {traduccion3}")
