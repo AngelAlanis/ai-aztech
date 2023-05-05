@@ -21,17 +21,26 @@ idiomaDetectado1=detect(textoPrueba1)
 idiomaDetectado2=detect(textoPrueba2)
 idiomaDetectado3=detect(textoPrueba3)
 
-#Para traducir se usa la variable traductor que se conecta con la api y se pone de 
-#parametros el texto que se va a traducir, el idioma detectado y el idioma al que 
-#se va a traducir
-traduccion1=traductor.translate(textoPrueba1,idiomaDetectado1,idiomaATraducir)
-traduccion2=traductor.translate(textoPrueba2,idiomaDetectado2,idiomaATraducir)
-traduccion3=traductor.translate(textoPrueba3,idiomaDetectado3,idiomaATraducir)
+#Se usa un if para detectar si el idioma es español no haga nada
+if(idiomaDetectado1=='es'){
+    print(f"El texto ya se encuentra en español: {textoPrueba1}")
+} elif(idiomaDetectado2=='es'){
+    print(f"El texto ya se encuentra en español: {textoPrueba2}")
+}elif (idiomaDetectado3=='es'){
+    print(f"El texto ya se encuentra en español: {textoPrueba3}")
+}else{ 
+  #Para traducir se usa la variable traductor que se conecta con la api y se pone de 
+  #parametros el texto que se va a traducir, el idioma detectado y el idioma al que 
+  #se va a traducir
+  traduccion1=traductor.translate(textoPrueba1,idiomaDetectado1,idiomaATraducir)
+  traduccion2=traductor.translate(textoPrueba2,idiomaDetectado2,idiomaATraducir)
+  traduccion3=traductor.translate(textoPrueba3,idiomaDetectado3,idiomaATraducir)
 
-#Se imprime el texto ya traducido.
-print(f"Texto original: {textoPrueba1} idioma: {idiomaDetectado1}")
-print(f"Texto traducido: {traduccion1}")
-print(f"Texto original: {textoPrueba2} idioma: {idiomaDetectado2}")
-print(f"Texto traducido: {traduccion2}")
-print(f"Texto original: {textoPrueba3} idioma: {idiomaDetectado3}")
-print(f"Texto traducido: {traduccion3}")
+  #Se imprime el texto ya traducido.
+  print(f"Texto original: {textoPrueba1} idioma: {idiomaDetectado1}")
+  print(f"Texto traducido: {traduccion1}")
+  print(f"Texto original: {textoPrueba2} idioma: {idiomaDetectado2}")
+  print(f"Texto traducido: {traduccion2}")
+  print(f"Texto original: {textoPrueba3} idioma: {idiomaDetectado3}")
+  print(f"Texto traducido: {traduccion3}")
+}
