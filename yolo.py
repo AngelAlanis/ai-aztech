@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import torch
 import os
+from collections import Counter
 
 # Obtener la ruta absoluta del directorio actual
 current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -48,6 +49,11 @@ for detection in detections:
 # Imprimir las listas de objetos detectados y porcentajes de confianza
 print("Objetos detectados:", objetos_detectados)
 print("Porcentajes de confianza:", porcentajes_confianza)
+
+print("")
+contador=Counter(objetos_detectados)
+for elemento,cantidad in contador.items():
+    print(f"{cantidad} {elemento}")
 
 # Mostrar la imagen con las detecciones
 cv2.imshow("Detecciones", image)
