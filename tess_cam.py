@@ -2,6 +2,9 @@ import pytesseract
 import cv2
 import numpy as np
 import time
+from langdetect import detect
+from libretranslatepy import LibreTranslateAPI
+
 
 # Configuración de la ruta de PyTesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -9,6 +12,12 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 # Configuración de la fuente para mostrar en ventana
 font_scale = 1.5
 font = cv2.FONT_HERSHEY_PLAIN
+
+# Configuración del idioma al que se desea traducir
+idioma_traducir = "es"
+
+# Hace la conexion con la api por medio de internet.
+traductor = LibreTranslateAPI('https://libretranslate.org/')
 
 # Inicializar la captura del vídeo con la entrada 0
 cap = cv2.VideoCapture(0)
@@ -21,11 +30,17 @@ if not cap.isOpened():
 
 # Iniciar contador para la tasa de refresco.
 counter = 0
+
+def traducirTexto(textovar, deteccionIdioma):
+    traduccion = traductor.translate(textovar, deteccionIdioma, idioma_traducir)
+    return traduccion
+
+# Inicio del main.
 while True:
     ret, frame = cap.read()
 
     counter += 1
-    if (counter % 2) == 0:
+    if (counter % 20) == 0:
 
         imgH, imgW, _ = frame.shape
 
@@ -36,16 +51,17 @@ while True:
         # Obtener las boxes de los caracteres
         imgboxes = pytesseract.image_to_boxes(frame)
 
-        # Dibujar el rectángulo en la ventana
-        for boxes in imgboxes.splitlines():
-            boxes = boxes.split(' ')
-            x, y, w, h = int(boxes[1]), int(boxes[2]), int(boxes[3]), int(boxes[4])
-            cv2.rectangle(frame, (x, imgH - y), (w, imgH - h), (0, 0, 255), 3)
+        if imgchar != '':
+            print(imgchar)
+            idiomaDetectado = detect(imgchar)
 
-        # Poner en pantalla el texto obtenido 
-        cv2.putText(frame, imgchar, (x1 + int(w1 / 50), y1 + int(h1 / 50)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            if idiomaDetectado != idioma_traducir:
+                imgchar = traducirTexto(imgchar, idiomaDetectado)
+                print("Texto traducido:", imgchar)
 
-        font = cv2.FONT_HERSHEY_SIMPLEX
+        # Poner en pantalla el texto obtenido
+        cv2.putText(frame, imgchar, (x1 + int(w1 / 50), y1 + int(h1 / 50) + 20),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
 
         # Mostrar la imagen en la ventana
         cv2.imshow('PyTesseract', frame)
