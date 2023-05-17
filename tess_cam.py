@@ -83,7 +83,6 @@ def procesar_video():
     if not cap.isOpened():
         raise IOError("No se puede abrir el vídeo.")
 
-
     # Iniciar contador para la tasa de refresco.
     contador = 0
 
@@ -123,6 +122,7 @@ def procesar_video():
 
     cap.release()
     cv2.destroyAllWindows()
+
 
 def main():
     procesar_video()
