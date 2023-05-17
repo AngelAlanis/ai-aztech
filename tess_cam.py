@@ -1,20 +1,19 @@
-import pytesseract
-import cv2
-import numpy as np
+import re
 import time
+
+import cv2
+import nltk
+import numpy as np
+import pytesseract
 from langdetect import detect
 from libretranslatepy import LibreTranslateAPI
-import re
-from unidecode import unidecode
-from spellchecker import SpellChecker
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-import nltk
+from unidecode import unidecode
 
-#
+# Banderas para el flujo del programa
 isPausado = False
 isDetectandoTexto = True
-
 
 # Configuración de la ruta de PyTesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -41,6 +40,7 @@ if not cap.isOpened():
 # Iniciar contador para la tasa de refresco.
 contador = 0
 
+# Descargar componentes necesarios en caso de que no estén presentes
 nltk.download('punkt')
 nltk.download('stopwords')
 
@@ -60,6 +60,7 @@ def limpiar_texto(text):
     words = word_tokenize(text)
     filtered_words = [word for word in words if word not in stop_words]
     text = ' '.join(filtered_words)
+
     return text
 
 
@@ -77,11 +78,12 @@ def detectar_idioma_y_traducir(texto):
 
 def traducir_texto(texto, idioma_original):
     try:
-        traduccion = traductor.translate(texto, idioma_original, idioma_usuario)
+        traduccion = traductor.translate(
+            texto, idioma_original, idioma_usuario)
         return traduccion
     except:
         print("Error con la solicitud de la API de traducción.")
-    
+
 
 # Inicio del main.
 while True:
