@@ -5,6 +5,10 @@ import time
 from langdetect import detect
 from libretranslatepy import LibreTranslateAPI
 
+#
+isPausado = False
+isDetectandoTexto = True
+
 
 # Configuración de la ruta de PyTesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -51,26 +55,31 @@ def traducir_texto(texto, idioma_original):
 
 # Inicio del main.
 while True:
-    ret, frame = cap.read()
+    # Condición para pausar si el usuario lo decide.
+    if not isPausado:
+        ret, frame = cap.read()
 
-    contador += 1
-    if (contador % 20) == 0:
+        contador += 1
+        if (contador % 20) == 0:
 
-        imgH, imgW, _ = frame.shape
+            # Solo detectar texto si el usuario lo
+            if isDetectandoTexto:
 
-        x1, y1, w1, h1 = 0, 0, imgH, imgW
+                imgH, imgW, _ = frame.shape
 
-        # Obtener el texto de la imagen
-        texto = pytesseract.image_to_string(frame)
+                x1, y1, w1, h1 = 0, 0, imgH, imgW
 
-        texto = procesar_texto(texto)
+                # Obtener el texto de la imagen
+                texto = pytesseract.image_to_string(frame)
 
-        # Poner en pantalla el texto obtenido
-        cv2.putText(frame, texto, (x1 + int(w1 / 50), y1 + int(h1 / 50) + 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+                texto = procesar_texto(texto)
 
-        # Mostrar la imagen en la ventana
-        cv2.imshow('PyTesseract', frame)
+                # Poner en pantalla el texto obtenido
+                cv2.putText(frame, texto, (x1 + int(w1 / 50), y1 + int(h1 / 50) + 20),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+
+                # Mostrar la imagen en la ventana
+                cv2.imshow('PyTesseract', frame)
 
         # Condición de terminación
         if cv2.waitKey(2) & 0xFF == ord('q'):
