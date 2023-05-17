@@ -4,6 +4,12 @@ import numpy as np
 import time
 from langdetect import detect
 from libretranslatepy import LibreTranslateAPI
+import re
+from unidecode import unidecode
+from spellchecker import SpellChecker
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import nltk
 
 #
 isPausado = False
@@ -35,8 +41,29 @@ if not cap.isOpened():
 # Iniciar contador para la tasa de refresco.
 contador = 0
 
+nltk.download('punkt')
+nltk.download('stopwords')
 
-def procesar_texto(texto):
+
+def limpiar_texto(text):
+    # Eliminar caracteres no deseados
+    text = re.sub(r'[^\w\s]', '', text)
+
+    # Convertir el texto a minúsculas
+    text = text.lower()
+
+    # Eliminar acentos y diacríticos
+    text = unidecode(text)
+
+    # Segmentación de palabras y eliminación de palabras vacías
+    stop_words = set(stopwords.words('spanish'))
+    words = word_tokenize(text)
+    filtered_words = [word for word in words if word not in stop_words]
+    text = ' '.join(filtered_words)
+    return text
+
+
+def detectar_idioma_y_traducir(texto):
     if texto != '':
         print(texto)
         idioma_detectado = detect(texto)
@@ -49,9 +76,12 @@ def procesar_texto(texto):
 
 
 def traducir_texto(texto, idioma_original):
-    traduccion = traductor.translate(texto, idioma_original, idioma_usuario)
-    return traduccion
-
+    try:
+        traduccion = traductor.translate(texto, idioma_original, idioma_usuario)
+        return traduccion
+    except:
+        print("Error con la solicitud de la API de traducción.")
+    
 
 # Inicio del main.
 while True:
@@ -72,7 +102,9 @@ while True:
                 # Obtener el texto de la imagen
                 texto = pytesseract.image_to_string(frame)
 
-                texto = procesar_texto(texto)
+                texto = limpiar_texto(texto)
+
+                texto = detectar_idioma_y_traducir(texto)
 
                 # Poner en pantalla el texto obtenido
                 cv2.putText(frame, texto, (x1 + int(w1 / 50), y1 + int(h1 / 50) + 20),
