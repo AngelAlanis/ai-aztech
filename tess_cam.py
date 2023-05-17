@@ -11,10 +11,6 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from unidecode import unidecode
 
-# Banderas para el flujo del programa
-isPausado = False
-isDetectandoTexto = True
-
 # Configuración de la ruta de PyTesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -23,26 +19,18 @@ font_scale = 1.5
 font = cv2.FONT_HERSHEY_PLAIN
 
 # Configuración del idioma al que se desea traducir
-idioma_usuario = "es"
+IDIOMA_USUARIO = "es"
 
 # Hace la conexion con la api por medio de internet.
 traductor = LibreTranslateAPI('https://libretranslate.org/')
 
-# Inicializar la captura del vídeo con la entrada 0
-cap = cv2.VideoCapture(0)
-
-# Si la entrada 0 no funciona, intentar con la 1.
-if not cap.isOpened():
-    cap = cv2.VideoCapture(1)
-if not cap.isOpened():
-    raise IOError("No se puede abrir el vídeo.")
-
-# Iniciar contador para la tasa de refresco.
-contador = 0
-
 # Descargar componentes necesarios en caso de que no estén presentes
 nltk.download('punkt')
 nltk.download('stopwords')
+
+# Banderas para el flujo del programa
+is_pausado = False
+is_detectando_texto = True
 
 
 def limpiar_texto(text):
@@ -69,7 +57,7 @@ def detectar_idioma_y_traducir(texto):
         print(texto)
         idioma_detectado = detect(texto)
 
-        if idioma_detectado != idioma_usuario:
+        if idioma_detectado != IDIOMA_USUARIO:
             texto = traducir_texto(texto, idioma_detectado)
             print("Texto traducido:", texto)
 
@@ -79,45 +67,66 @@ def detectar_idioma_y_traducir(texto):
 def traducir_texto(texto, idioma_original):
     try:
         traduccion = traductor.translate(
-            texto, idioma_original, idioma_usuario)
+            texto, idioma_original, IDIOMA_USUARIO)
         return traduccion
-    except:
-        print("Error con la solicitud de la API de traducción.")
+    except Exception as e:
+        print("Error con la solicitud de la API de traducción:", str(e))
 
 
-# Inicio del main.
-while True:
-    # Condición para pausar si el usuario lo decide.
-    if not isPausado:
-        ret, frame = cap.read()
+def procesar_video():
+    # Inicializar la captura del vídeo con la entrada 0
+    cap = cv2.VideoCapture(0)
 
-        contador += 1
-        if (contador % 20) == 0:
+    # Si la entrada 0 no funciona, intentar con la 1.
+    if not cap.isOpened():
+        cap = cv2.VideoCapture(1)
+    if not cap.isOpened():
+        raise IOError("No se puede abrir el vídeo.")
 
-            # Solo detectar texto si el usuario lo
-            if isDetectandoTexto:
 
-                imgH, imgW, _ = frame.shape
+    # Iniciar contador para la tasa de refresco.
+    contador = 0
 
-                x1, y1, w1, h1 = 0, 0, imgH, imgW
+    # Inicio del main.
+    while True:
+        # Condición para pausar si el usuario lo decide.
+        if not is_pausado:
+            ret, frame = cap.read()
 
-                # Obtener el texto de la imagen
-                texto = pytesseract.image_to_string(frame)
+            contador += 1
+            if (contador % 20) == 0:
 
-                texto = limpiar_texto(texto)
+                # Solo detectar texto si el usuario lo
+                if is_detectando_texto:
 
-                texto = detectar_idioma_y_traducir(texto)
+                    imgH, imgW, _ = frame.shape
 
-                # Poner en pantalla el texto obtenido
-                cv2.putText(frame, texto, (x1 + int(w1 / 50), y1 + int(h1 / 50) + 20),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+                    x1, y1, w1, h1 = 0, 0, imgH, imgW
 
-                # Mostrar la imagen en la ventana
-                cv2.imshow('PyTesseract', frame)
+                    # Obtener el texto de la imagen
+                    texto = pytesseract.image_to_string(frame)
 
-        # Condición de terminación
-        if cv2.waitKey(2) & 0xFF == ord('q'):
-            break
+                    texto = limpiar_texto(texto)
 
-cap.release()
-cv2.destroyAllWindows()
+                    texto = detectar_idioma_y_traducir(texto)
+
+                    # Poner en pantalla el texto obtenido
+                    cv2.putText(frame, texto, (x1 + int(w1 / 50), y1 + int(h1 / 50) + 20),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+
+                    # Mostrar la imagen en la ventana
+                    cv2.imshow('PyTesseract', frame)
+
+            # Condición de terminación
+            if cv2.waitKey(2) & 0xFF == ord('q'):
+                break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+def main():
+    procesar_video()
+
+
+if __name__ == "__main__":
+    main()
