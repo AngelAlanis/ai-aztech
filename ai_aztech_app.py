@@ -1,29 +1,22 @@
-#Importación de librerias
+# Importación de librerias
+import os
 import re
 import time
+
 import cv2
-#Librerias para la detección de textos
 import nltk
 import numpy as np
 import pytesseract
+import torch
 from langdetect import detect
 from libretranslatepy import LibreTranslateAPI
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from unidecode import unidecode
-#Librerias de YOLO
-import numpy as np
-import torch
-import os
 from PIL import Image
-
+from unidecode import unidecode
 
 # Configuración de la ruta de PyTesseract
 pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
-
-# Configuración de la fuente para mostrar en ventana
-font_scale = 1.5
-font = cv2.FONT_HERSHEY_PLAIN
 
 # Configuración del idioma al que se desea traducir
 IDIOMA_USUARIO = "es"
@@ -38,9 +31,8 @@ nltk.download('stopwords')
 # Banderas para el flujo del programa
 is_detectando_texto = True
 
-#Imagen
+# Imagen
 imagen = Image.open('resources/texto.png')
-
 
 def limpiar_texto(text):
     # Eliminar caracteres no deseados
@@ -87,14 +79,15 @@ def procesar_imagen():
     current_dir = os.path.abspath(os.path.dirname(__file__))
 
     # Cargar modelo
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path=os.path.join(current_dir,'aztech.pt'))
+    model = torch.hub.load('ultralytics/yolov5', 'custom',
+                           path=os.path.join(current_dir, 'aztech.pt'))
 
     frame = imagen
 
-    #Detectar objetos
-    detect=model(frame)
-    info=[]
-    info=detect.pandas().xyxy[0]
+    # Detectar objetos
+    detect = model(frame)
+    info = []
+    info = detect.pandas().xyxy[0]
 
     print(info)
 
@@ -110,19 +103,21 @@ def procesar_imagen():
 
         print(texto)
 
+
 def ordenar_puntos(puntos):
-    n_puntos = np.concatenate([puntos[0], puntos[1], puntos[2], puntos[3]]).tolist()
+    n_puntos = np.concatenate(
+        [puntos[0], puntos[1], puntos[2], puntos[3]]).tolist()
     y_order = sorted(n_puntos, key=lambda n_puntos: n_puntos[1])
     x1_order = y_order[:2]
     x1_order = sorted(x1_order, key=lambda x1_order: x1_order[0])
     x2_order = y_order[2:4]
     x2_order = sorted(x2_order, key=lambda x2_order: x2_order[0])
-    
+
     return [x1_order[0], x1_order[1], x2_order[0], x2_order[1]]
+
 
 def main():
     procesar_imagen()
-
 
 
 if __name__ == "__main__":
