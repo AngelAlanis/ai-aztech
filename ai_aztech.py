@@ -18,8 +18,8 @@ import os
 
 
 # Configuración de la ruta de PyTesseract
-#pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Users\\Karely.LapKarely\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract'
+pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+#pytesseract.pytesseract.tesseract_cmd = 'C:\\Users\\Karely.LapKarely\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract'
 
 # Configuración de la fuente para mostrar en ventana
 font_scale = 1.5
@@ -103,7 +103,7 @@ def procesar_video():
     while True:
         # Condición para pausar si el usuario lo decide.
         if not is_pausado:
-           
+        
             contador += 1
             if (contador % 20) == 0:
                 #Lectura de frames
