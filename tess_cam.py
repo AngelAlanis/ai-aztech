@@ -90,11 +90,12 @@ def procesar_video():
     while True:
         # Condición para pausar si el usuario lo decide.
         if not is_pausado:
-            ret, frame = cap.read()
 
             contador += 1
             if (contador % 20) == 0:
 
+                ret, frame = cap.read()
+                
                 # Solo detectar texto si el usuario lo
                 if is_detectando_texto:
 
