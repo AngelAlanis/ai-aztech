@@ -13,6 +13,10 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from PIL import Image
 
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
 # Configuración de la ruta de PyTesseract
 pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
@@ -51,8 +55,6 @@ def limpiar_texto(texto):
 
 def detectar_idioma_y_traducir(texto):
     if texto != '':
-        print(texto)
-        
         try:
             idioma_detectado = detect(texto)
         except Exception as e:
@@ -60,7 +62,6 @@ def detectar_idioma_y_traducir(texto):
 
         if idioma_detectado != IDIOMA_USUARIO:
             texto = traducir_texto(texto, idioma_detectado)
-            print("Texto traducido:", texto)
 
     return texto
 
@@ -74,7 +75,12 @@ def traducir_texto(texto, idioma_original):
         print("Error con la solicitud de la API de traducción:", str(e))
 
 
+@app.route('/procesar_imagen', methods=['POST'])
 def procesar_imagen():
+    # Obtener la imagen y la bandera desde la solicitud POST
+    imagen = request.files['imagen']
+    is_detectando_texto = request.form['is_detectando_texto']
+
     # Obtener la ruta absoluta del directorio actual
     current_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -82,30 +88,23 @@ def procesar_imagen():
     model = torch.hub.load('ultralytics/yolov5', 'custom',
                            path=os.path.join(current_dir, 'aztech.pt'))
 
-    frame = imagen
-
     # Detectar objetos
-    detect = model(frame)
-
+    detect = model(imagen)
     info = detect.pandas().xyxy[0]
-
-    print(info)
 
     # Solo detectar texto si el usuario lo
     if is_detectando_texto:
         # Obtener el texto de la imagen
-        texto = pytesseract.image_to_string(frame)
+        texto = pytesseract.image_to_string(imagen)
 
         texto = limpiar_texto(texto)
 
         texto = detectar_idioma_y_traducir(texto)
 
-        print(texto)
+        return jsonify(resultado=texto)
 
-
-def main():
-    procesar_imagen()
+    return jsonify(resultado='')
 
 
 if __name__ == "__main__":
-    main()
+    app.run()
