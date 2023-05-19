@@ -33,10 +33,6 @@ nltk.download('stopwords')
 # Banderas para el flujo del programa
 is_detectando_texto = True
 
-# Imagen
-imagen = Image.open('resources/texto.png')
-
-
 def limpiar_texto(texto):
     # Eliminar caracteres no deseados
     texto = re.sub(r'[^\w\s]', '', texto)
@@ -92,6 +88,8 @@ def procesar_imagen():
     detect = model(imagen)
     info = detect.pandas().xyxy[0]
 
+    info_str = info.iloc[:, 6].to_string(index=False)
+    
     # Solo detectar texto si el usuario lo
     if is_detectando_texto:
         # Obtener el texto de la imagen
@@ -101,10 +99,10 @@ def procesar_imagen():
 
         texto = detectar_idioma_y_traducir(texto)
 
-        return jsonify(resultado=texto)
+        texto = texto + info_str
 
-    return jsonify(resultado='')
-
+        return jsonify(resultado = texto)
+    return jsonify(resultado = '')
 
 if __name__ == "__main__":
     app.run()
