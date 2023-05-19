@@ -33,26 +33,30 @@ is_detectando_texto = True
 imagen = Image.open('resources/texto.png')
 
 
-def limpiar_texto(text):
+def limpiar_texto(texto):
     # Eliminar caracteres no deseados
-    text = re.sub(r'[^\w\s]', '', text)
+    texto = re.sub(r'[^\w\s]', '', texto)
 
     # Convertir el texto a minúsculas
-    text = text.lower()
+    texto = texto.lower()
 
     # Segmentación de palabras y eliminación de palabras vacías
     stop_words = set(stopwords.words('spanish'))
-    words = word_tokenize(text)
+    words = word_tokenize(texto)
     filtered_words = [word for word in words if word not in stop_words]
-    text = ' '.join(filtered_words)
+    texto = ' '.join(filtered_words)
 
-    return text
+    return texto
 
 
 def detectar_idioma_y_traducir(texto):
     if texto != '':
         print(texto)
-        idioma_detectado = detect(texto)
+        
+        try:
+            idioma_detectado = detect(texto)
+        except Exception as e:
+            print("Error con la solicitud de la API de detección de texto:", str(e))
 
         if idioma_detectado != IDIOMA_USUARIO:
             texto = traducir_texto(texto, idioma_detectado)
