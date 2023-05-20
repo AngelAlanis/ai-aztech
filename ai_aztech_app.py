@@ -30,8 +30,19 @@ traductor = LibreTranslateAPI('https://libretranslate.org/')
 nltk.download('punkt')
 nltk.download('stopwords')
 
-# Banderas para el flujo del programa
-is_detectando_texto = True
+# Inicializar el modelo YOLO
+def inicializar_modelo():
+    # Obtener la ruta absoluta del directorio actual
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    
+    # Cargar modelo
+    model = torch.hub.load('ultralytics/yolov5', 'custom',
+                           path=os.path.join(current_dir, 'aztech.pt'))
+    
+    return model
+
+# Inicializar el modelo YOLO una vez al iniciar la aplicación
+modelo_yolo = inicializar_modelo()
 
 def limpiar_texto(texto):
     # Eliminar caracteres no deseados
@@ -80,18 +91,14 @@ def procesar_imagen():
     # Obtener la ruta absoluta del directorio actual
     current_dir = os.path.abspath(os.path.dirname(__file__))
 
-    # Cargar modelo
-    model = torch.hub.load('ultralytics/yolov5', 'custom',
-                           path=os.path.join(current_dir, 'aztech.pt'))
-
     # Detectar objetos
-    detect = model(imagen)
+    detect = modelo_yolo(imagen)
     info = detect.pandas().xyxy[0]
 
     info_str = info.iloc[:, 6].to_string(index=False)
     
     # Solo detectar texto si el usuario lo
-    if is_detectando_texto:
+    if is_detectando_texto.lower() == 'true':
         # Obtener el texto de la imagen
         texto = pytesseract.image_to_string(imagen)
 
