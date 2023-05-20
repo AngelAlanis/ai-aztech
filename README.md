@@ -14,7 +14,7 @@ Parte de la Inteligencia Artificial para el proyecto de Aztech.
 
 ## Instalación
 1. Clona el repositorio del proyecto: git clone https://github.com/AngelAlanis/ai-aztech.git
-2. Ve al directorio del proyecto: cd nombre-del-repo
+2. Ve al directorio del proyecto: cd ai-aztech
 3. Instala las dependencias de Python: pip install -r requirements.txt
 4. Instala las dependencias de JavaScript: npm install
 
