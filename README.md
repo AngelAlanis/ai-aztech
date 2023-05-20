@@ -8,6 +8,7 @@ Parte de la Inteligencia Artificial para el proyecto de Aztech.
 - [Python: 3.10.0](https://www.python.org/downloads/release/python-3100/) instalado en el sistema.
 - [Tesseract-OCR: 5.3.1.20230401](https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-5.3.1.20230401.exe)  instalado en sistema, preferentemente en la ruta 'C:\\Program Files para que al final esté ubicado en 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe''.
 - Las dependencias de Python especificadas en [requeriments.txt](https://github.com/AngelAlanis/ai-aztech/blob/app/requirements.txt), ver la sección de Instalación para más detalles.
+- **IMPORTANTE:** Es necesario tener los archivos ai_aztech_app.py, aztech.names, y aztech.pt en el proyecto y en una misma carpeta o ruta.
 
 
 
