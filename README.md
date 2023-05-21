@@ -24,8 +24,6 @@ Antes de ejecutar el programa, asegúrate de realizar la siguiente configuració
 1. Configura la ruta de Tesseract-OCR en el archivo main.py: pytesseract.pytesseract.tesseract_cmd = 'ruta-al-tesseract-ocr', si seguiste la guía no debería haber necesidad de cambiar la ruta.
 
 ## Uso
-1. Ejecuta el servidor Flask para procesar las imágenes: python main.py
-2. Accede a la aplicación web en tu navegador: http://localhost:5000
-3. Otorga los permisos de cámara requeridos por la página web.
-4. La cámara tomará fotos en intervalos regulares y las enviará al servidor.
-5. El servidor procesará las imágenes y devolverá los resultados de detección de texto.
+1. Otorga los permisos de cámara requeridos por la página web.
+2. La cámara tomará fotos en intervalos regulares y las enviará al servidor.
+3. El servidor procesará las imágenes y devolverá los resultados de detección de texto.
