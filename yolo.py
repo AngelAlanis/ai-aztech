@@ -234,8 +234,9 @@ def construir_salida_yolo(info):
     for elemento, cantidad in contador.items():
         # Verificar si se necesita hacer plural
         if cantidad > 1:
-            elemento += "s"  # Agregar 's' al final para hacerlo plural
-
+            elemento = objetos_plural.get(elemento)  # Pone el objeto del diccionario en plural
+        else:
+            elemento = objetos_singular.get(elemento) # Obtiene el objeto del diccionario singular
         objetos_detectados.append(f"{cantidad} {elemento}")
 
     # Construir el mensaje final
