@@ -5,6 +5,7 @@ from datetime import datetime
 
 import nltk
 import numpy as np
+from collections import Counter
 import pytesseract
 import torch
 from langdetect import detect
@@ -12,6 +13,7 @@ from libretranslatepy import LibreTranslateAPI
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from PIL import Image
+from aztech_utils import objetos_plural, objetos_singular
 
 from flask import Flask, request, jsonify
 
@@ -30,93 +32,8 @@ traductor = LibreTranslateAPI('https://libretranslate.org/')
 nltk.download('punkt')
 nltk.download('stopwords')
 
-# Diccionario para la detección de objetos
-
-objetos = {
-    "persona": "Se ha detectado a una persona.",
-    "bicicleta": "Se ha detectado una bicicleta.",
-    "carro": "Se ha detectado un carro.",
-    "motocicleta": "Se ha detectado una motocicleta.",
-    "avión": "Se ha detectado un avión.",
-    "autobús": "Se ha detectado un autobús.",
-    "tren": "Se ha detectado un tren.",
-    "camion": "Se ha detectado un camión.",
-    "bote": "Se ha detectado un bote.",
-    "luz de semáforo": "Se ha detectado una luz de semáforo.",
-    "hidrante": "Se ha detectado un hidrante.",
-    "señal de parada": "Se ha detectado una señal de parada.",
-    "parquímetro": "Se ha detectado un parquímetro.",
-    "banco": "Se ha detectado un banco.",
-    "pájaro": "Se ha detectado un pájaro.",
-    "gato": "Se ha detectado un gato.",
-    "perro": "Se ha detectado un perro.",
-    "caballo": "Se ha detectado un caballo.",
-    "oveja": "Se ha detectado una oveja.",
-    "baca": "Se ha detectado una baca.",
-    "elefante": "Se ha detectado un elefante.",
-    "oso": "Se ha detectado un oso.",
-    "cebra": "Se ha detectado una cebra.",
-    "jirafa": "Se ha detectado una jirafa.",
-    "mochila": "Se ha detectado una mochila.",
-    "paraguas": "Se ha detectado un paraguas.",
-    "bolsa de mano": "Se ha detectado una bolsa de mano.",
-    "corbata": "Se ha detectado una corbata.",
-    "frisbee": "Se ha detectado un frisbee.",
-    "esquís": "Se han detectado esquís.",
-    "snowboard": "Se ha detectado un snowboard.",
-    "pelota": "Se ha detectado una pelota.",
-    "cometa": "Se ha detectado una cometa.",
-    "bate de beisbol": "Se ha detectado un bate de béisbol.",
-    "guante de beisbol": "Se ha detectado un guante de béisbol.",
-    "patineta": "Se ha detectado una patineta.",
-    "tabla de surf": "Se ha detectado una tabla de surf.",
-    "raqueta de tenis": "Se ha detectado una raqueta de tenis.",
-    "botella": "Se ha detectado una botella.",
-    "copa de vino": "Se ha detectado una copa de vino.",
-    "taza": "Se ha detectado una taza.",
-    "tenedor": "Se ha detectado un tenedor.",
-    "cuchillo": "Se ha detectado un cuchillo.",
-    "cuchara": "Se ha detectado una cuchara.",
-    "cuenco": "Se ha detectado un cuenco.",
-    "platano": "Se ha detectado un plátano.",
-    "manzana": "Se ha detectado una manzana.",
-    "sandwich": "Se ha detectado un sandwich.",
-    "naranja": "Se ha detectado una naranja.",
-    "brocoli": "Se ha detectado un brócoli.",
-    "zanahoria": "Se ha detectado una zanahoria.",
-    "perro caliente": "Se ha detectado un perro caliente.",
-    "pizza": "Se ha detectado una pizza.",
-    "dona": "Se ha detectado una dona.",
-    "pastel": "Se ha detectado un pastel.",
-    "silla": "Se ha detectado una silla.",
-    "sofa": "Se ha detectado un sofá.",
-    "planta en maceta": "Se ha detectado una planta en maceta.",
-    "cama": "Se ha detectado una cama.",
-    "comedor": "Se ha detectado un comedor.",
-    "baño": "Se ha detectado un baño.",
-    "tv": "Se ha detectado una TV.",
-    "laptop": "Se ha detectado una laptop.",
-    "mouse": "Se ha detectado un mouse.",
-    "control remoto": "Se ha detectado un control remoto.",
-    "teclado": "Se ha detectado un teclado.",
-    "telefono": "Se ha detectado un teléfono.",
-    "microondas": "Se ha detectado un microondas.",
-    "horno": "Se ha detectado un horno.",
-    "tostadora": "Se ha detectado una tostadora.",
-    "fregadero": "Se ha detectado un fregadero.",
-    "refrigerador": "Se ha detectado un refrigerador.",
-    "libro": "Se ha detectado un libro.",
-    "reloj": "Se ha detectado un reloj.",
-    "florero": "Se ha detectado un florero.",
-    "tijeras": "Se han detectado tijeras.",
-    "oso de peluche": "Se ha detectado un oso de peluche.",
-    "secadora de pelo": "Se ha detectado una secadora de pelo.",
-    "cepillo de dientes": "Se ha detectado un cepillo de dientes."
-}
 
 # Inicializar el modelo YOLO
-
-
 def inicializar_modelo():
     # Obtener la ruta absoluta del directorio actual
     current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -181,12 +98,50 @@ def construir_salida_tesseract(texto):
 
     return msg
 
+def construir_salida_yolo(info):
+    # Mostrar las detecciones en la imagen
+    lista_labels = info.iloc[:, 6].to_string(index=False)
+
+    print("Lista de labels:", lista_labels)
+
+    # Separar los objetos y juntarlos en una lista
+    labels = lista_labels.split('\n')
+
+    # Quitar espacios en blanco de los elementos
+    labels = [label.strip() for label in labels]
+
+    # Inicializar resultado
+    resultado = "Se ha detectado" if len(labels) == 1 else "Se han detectado"
+
+    # Contar cuántos objetos se detectaron
+    contador = Counter(labels)
+    objetos_detectados = []
+
+    for elemento, cantidad in contador.items():
+        # Verificar si se necesita hacer plural
+        if cantidad > 1:
+            # Pone el objeto del diccionario en plural
+            elemento = objetos_plural.get(elemento)
+        else:
+            # Obtiene el objeto del diccionario singular
+            elemento = objetos_singular.get(elemento)
+        objetos_detectados.append(f"{cantidad} {elemento}")
+
+    # Construir el mensaje final
+    resultado += " " + " y ".join(objetos_detectados)
+
+    # Imprimir el resultado final
+    return resultado
+
 
 @app.route('/procesar_imagen', methods=['POST'])
 def procesar_imagen():
     # Obtener la imagen y la bandera desde la solicitud POST
-    imagen = request.files['imagen']
+    imagen_base64 = request.form['imagen']
     is_detectando_texto = request.form['is_detectando_texto']
+
+    # Decodificar la imagen base64
+    imagen = imagen_base64.split(',')[1].encode()
 
     # Obtener la ruta absoluta del directorio actual
     current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -195,7 +150,7 @@ def procesar_imagen():
     detect = modelo_yolo(imagen)
     info = detect.pandas().xyxy[0]
 
-    info_str = info.iloc[:, 6].to_string(index=False)
+    info_str = construir_salida_yolo(info)
 
     # Solo detectar texto si el usuario lo
     if is_detectando_texto.lower() == 'true':
