@@ -103,6 +103,10 @@ def construir_salida_yolo(info):
     # Mostrar las detecciones en la imagen
     lista_labels = info.iloc[:, 6].to_string(index=False)
 
+    # Retornar vacío si no se encontró nada.
+    if lista_labels.strip() == "Series([], )":
+        return ""
+
     print("Lista de labels:", lista_labels)
 
     # Separar los objetos y juntarlos en una lista
@@ -161,7 +165,14 @@ def procesar_imagen():
         texto = pytesseract.image_to_string(imagen)
         texto = construir_salida_tesseract(texto)
 
-    salida = info_str + " y  " + texto
+    if info_str and not texto: # Si detectó objetos y no texto
+        salida = info_str
+    elif info_str and texto: # Si detectó objetos y texto
+        salida = info_str + " y " + texto
+    elif texto and not info_str: # Si detectó texto y no objetos
+        salida = texto
+    else: # Si no detectó objetos ni texto
+        salida = ""
 
     return jsonify(resultado=salida)
 
