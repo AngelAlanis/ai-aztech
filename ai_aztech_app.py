@@ -148,7 +148,6 @@ def procesar_imagen():
         return jsonify(error='No se proporcionó ninguna imagen')
 
     imagen_file = request.files['imagen']
-    is_detectando_texto = request.form['is_detectando_texto']
 
     # Leer la imagen
     imagen = Image.open(imagen_file)
