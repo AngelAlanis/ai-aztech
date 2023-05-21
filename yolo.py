@@ -15,7 +15,7 @@ model = torch.hub.load('ultralytics/yolov5', 'custom',
                        path=os.path.join(current_dir, 'aztech.pt'), force_reload=True)
 
 # Cargar imagen
-image = cv2.imread(os.path.join(current_dir, 'resources/imagen.jpg'))
+image = cv2.imread(os.path.join(current_dir, 'resources/cerrado.png'))
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 # Realizar detección de objetos
@@ -27,7 +27,11 @@ def construir_salida_yolo(info):
     # Mostrar las detecciones en la imagen
     lista_labels = info.iloc[:, 6].to_string(index=False)
 
-    print("Lista de labels:", lista_labels)
+    # Retornar vacío si no se encontró nada.
+    if lista_labels.strip() == "Series([], )":
+        return ""
+
+    print("Lista de labels:" + "\'" + lista_labels + "\'")
 
     # Separar los objetos y juntarlos en una lista
     labels = lista_labels.split('\n')
