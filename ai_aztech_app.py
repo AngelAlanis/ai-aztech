@@ -106,10 +106,9 @@ def procesar_imagen():
 
         texto = detectar_idioma_y_traducir(texto)
 
-        texto = texto + info_str
+    texto = texto + info_str
 
-        return jsonify(resultado = texto)
-    return jsonify(resultado = '')
+    return jsonify(resultado = texto)
 
 if __name__ == "__main__":
     app.run()
