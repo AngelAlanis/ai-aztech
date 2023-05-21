@@ -1,21 +1,21 @@
 # Importación de librerias
 import os
 import re
+from collections import Counter
 from datetime import datetime
 
 import nltk
 import numpy as np
-from collections import Counter
 import pytesseract
 import torch
+from flask import Flask, jsonify, request
 from langdetect import detect
 from libretranslatepy import LibreTranslateAPI
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from PIL import Image
-from aztech_utils import objetos_plural, objetos_singular
 
-from flask import Flask, request, jsonify
+from aztech_utils import objetos_plural, objetos_singular
 
 app = Flask(__name__)
 
@@ -98,6 +98,7 @@ def construir_salida_tesseract(texto):
 
     return msg
 
+
 def construir_salida_yolo(info):
     # Mostrar las detecciones en la imagen
     lista_labels = info.iloc[:, 6].to_string(index=False)
@@ -143,9 +144,6 @@ def procesar_imagen():
     # Decodificar la imagen base64
     imagen = imagen_base64.split(',')[1].encode()
 
-    # Obtener la ruta absoluta del directorio actual
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-
     # Detectar objetos
     detect = modelo_yolo(imagen)
     info = detect.pandas().xyxy[0]
@@ -158,7 +156,7 @@ def procesar_imagen():
         texto = pytesseract.image_to_string(imagen)
         texto = construir_salida_tesseract(texto)
 
-    salida = texto + info_str
+    salida = info_str + " y  " + texto
 
     return jsonify(resultado=salida)
 
