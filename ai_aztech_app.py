@@ -138,11 +138,16 @@ def construir_salida_yolo(info):
 @app.route('/procesar_imagen', methods=['POST'])
 def procesar_imagen():
     # Obtener la imagen y la bandera desde la solicitud POST
-    imagen_base64 = request.form['imagen']
     is_detectando_texto = request.form['is_detectando_texto']
 
-    # Decodificar la imagen base64
-    imagen = imagen_base64.split(',')[1].encode()
+    if 'imagen' not in request.files:
+        return jsonify(error='No se proporcionó ninguna imagen')
+
+    imagen_file = request.files['imagen']
+    is_detectando_texto = request.form['is_detectando_texto']
+
+    # Leer la imagen
+    imagen = Image.open(imagen_file)
 
     # Detectar objetos
     detect = modelo_yolo(imagen)
