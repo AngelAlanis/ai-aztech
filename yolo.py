@@ -1,10 +1,9 @@
 import os
+from collections import Counter
 
 import cv2
 import numpy as np
 import torch
-
-from collections import Counter
 
 # Obtener la ruta absoluta del directorio actual
 current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -50,7 +49,7 @@ def construir_salida_yolo(info):
 
     # Construir el mensaje final
     resultado += " " + " y ".join(objetos_detectados)
-        
+
     # Imprimir el resultado final
     print(resultado)
 
