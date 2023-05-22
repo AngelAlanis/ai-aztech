@@ -17,6 +17,12 @@ from PIL import Image
 
 from aztech_utils import objetos_plural, objetos_singular
 
+
+def imprimir_timestamp(texto):
+    formato = "%H:%M:%S.%f"
+    print(datetime.now().strftime(formato)[:-3], texto)
+
+
 app = Flask(__name__)
 
 # Configuración de la ruta de PyTesseract
@@ -46,7 +52,9 @@ def inicializar_modelo():
 
 
 # Inicializar el modelo YOLO una vez al iniciar la aplicación
+imprimir_timestamp("Inicializando modelo de YOLO.")
 modelo_yolo = inicializar_modelo()
+imprimir_timestamp("Modelo de YOLO cargado.")
 
 
 def limpiar_texto(texto):
@@ -139,6 +147,7 @@ def construir_salida_yolo(info):
 @app.route('/procesar_imagen', methods=['POST'])
 def procesar_imagen():
     # Obtener la imagen y la bandera desde la solicitud POST
+    imprimir_timestamp("Obteniendo imagen y bandera desde el servidor.")
     is_detectando_texto = request.form['is_detectando_texto']
 
     if 'imagen' not in request.files:
@@ -146,14 +155,22 @@ def procesar_imagen():
 
     imagen_file = request.files['imagen']
 
+    imprimir_timestamp("Imagen y bandera obtenidas desde el servidor.")
+
     # Leer la imagen
+    imprimir_timestamp("Convirtiendo imagen.")
     imagen = Image.open(imagen_file)
+    imprimir_timestamp("Imagen convertida correctamente.")
 
     # Detectar objetos
+    imprimir_timestamp("Analizando objetos con el modelo de YOLO.")
     detect = modelo_yolo(imagen)
     info = detect.pandas().xyxy[0]
+    imprimir_timestamp("Análisis de objetos completado.")
 
+    imprimir_timestamp("Construyendo salida del string de objetos.")
     info_str = construir_salida_yolo(info)
+    imprimir_timestamp("Salida con YOLO construida.")
 
     # Inicialización de texto
     texto = ""
@@ -161,11 +178,15 @@ def procesar_imagen():
     # Solo detectar texto si el usuario lo quiere
     if is_detectando_texto.lower() == 'true':
         # Obtener el texto de la imagen
+        imprimir_timestamp("Analizando imagen con PyTesseract.")
         texto = pytesseract.image_to_string(imagen)
-        print("Test texto:", texto)
+        imprimir_timestamp("Análisis con PyTesseract completado.")
         if texto:
+            imprimir_timestamp("Construyendo salida de PyTesseract.")
             texto = construir_salida_tesseract(texto)
+            imprimir_timestamp("Salida de PyTesseract construida.")
 
+    imprimir_timestamp("Construyendo string de salida.")
     if info_str and not texto:  # Si detectó objetos y no texto
         salida = info_str
     elif info_str and texto:  # Si detectó objetos y texto
@@ -174,6 +195,9 @@ def procesar_imagen():
         salida = texto
     else:  # Si no detectó objetos ni texto
         salida = ""
+    imprimir_timestamp("String de salida construído.")
+
+    imprimir_timestamp("Enviando salida a Javascript..")
 
     return jsonify(resultado=salida)
 
