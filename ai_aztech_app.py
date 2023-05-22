@@ -69,12 +69,10 @@ def detectar_idioma_y_traducir(texto):
     if texto != '':
         try:
             idioma_detectado = detect(texto)
+            if idioma_detectado != IDIOMA_USUARIO:
+                texto = traducir_texto(texto, idioma_detectado)
         except Exception as e:
             print("Error con la solicitud de la API de detección de texto:", str(e))
-
-        if idioma_detectado != IDIOMA_USUARIO:
-            texto = traducir_texto(texto, idioma_detectado)
-
     return texto
 
 
@@ -94,9 +92,7 @@ def construir_salida_tesseract(texto):
         texto = limpiar_texto(texto)
         texto = detectar_idioma_y_traducir(texto)
 
-        msg = "Se detectó un texto que dice", texto
-
-        msg = "Se detectó un texto que dice " + texto
+        msg = "Se detectó un texto que dice " + str(texto)
         return msg
 
 
@@ -166,6 +162,7 @@ def procesar_imagen():
     if is_detectando_texto.lower() == 'true':
         # Obtener el texto de la imagen
         texto = pytesseract.image_to_string(imagen)
+        print("Test texto:", texto)
         if texto:
             texto = construir_salida_tesseract(texto)
 
