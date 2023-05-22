@@ -96,7 +96,8 @@ def construir_salida_tesseract(texto):
 
         msg = "Se detectó un texto que dice", texto
 
-    return msg
+        msg = "Se detectó un texto que dice " + texto
+        return msg
 
 
 def construir_salida_yolo(info):
@@ -158,19 +159,23 @@ def procesar_imagen():
 
     info_str = construir_salida_yolo(info)
 
-    # Solo detectar texto si el usuario lo
+    # Inicialización de texto
+    texto = ""
+
+    # Solo detectar texto si el usuario lo quiere
     if is_detectando_texto.lower() == 'true':
         # Obtener el texto de la imagen
         texto = pytesseract.image_to_string(imagen)
-        texto = construir_salida_tesseract(texto)
+        if texto:
+            texto = construir_salida_tesseract(texto)
 
-    if info_str and not texto: # Si detectó objetos y no texto
+    if info_str and not texto:  # Si detectó objetos y no texto
         salida = info_str
-    elif info_str and texto: # Si detectó objetos y texto
+    elif info_str and texto:  # Si detectó objetos y texto
         salida = info_str + " y " + texto
-    elif texto and not info_str: # Si detectó texto y no objetos
+    elif texto and not info_str:  # Si detectó texto y no objetos
         salida = texto
-    else: # Si no detectó objetos ni texto
+    else:  # Si no detectó objetos ni texto
         salida = ""
 
     return jsonify(resultado=salida)
