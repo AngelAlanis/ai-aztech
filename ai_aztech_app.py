@@ -246,5 +246,5 @@ def procesar_imagen():
     return jsonify(resultado=salida)
 
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     app.run(debug=True)
