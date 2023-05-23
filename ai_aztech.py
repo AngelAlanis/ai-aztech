@@ -159,12 +159,11 @@ def construir_salida_yolo(info):
 
 
 def procesar_video():
-    imprimir_timestamp("Iniciando nueva iteración.")
-
     is_detectando_texto = True
 
     # Inicio del main.
     while True:
+        imprimir_timestamp("Iniciando nueva iteración.")
         # Lectura de frames
         imprimir_timestamp("Leyendo imagen desde la cámara.")
         ret, frame = cap.read()
