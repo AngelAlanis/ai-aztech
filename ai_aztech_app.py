@@ -1,11 +1,10 @@
-# Importación de librerias
+# Importación de librerías
 import os
 import re
 from collections import Counter
 from datetime import datetime
 
 import nltk
-import numpy as np
 import pytesseract
 import torch
 from flask import Flask, jsonify, render_template, request, url_for
@@ -37,6 +36,7 @@ traductor = LibreTranslateAPI("https://libretranslate.org/")
 # Descargar componentes necesarios en caso de que no estén presentes
 nltk.download("punkt")
 nltk.download("stopwords")
+
 
 # Inicializar el modelo YOLO
 def inicializar_modelo():
@@ -130,7 +130,8 @@ def construir_salida_tesseract(texto):
         texto = detectar_idioma_y_traducir(texto)
 
         msg = "Se detectó un texto que dice " + str(texto)
-        return msg
+
+    return msg
 
 
 def construir_salida_yolo(info):
