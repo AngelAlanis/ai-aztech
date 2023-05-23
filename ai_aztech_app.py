@@ -8,7 +8,7 @@ import nltk
 import numpy as np
 import pytesseract
 import torch
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request, url_for
 from langdetect import detect
 from libretranslatepy import LibreTranslateAPI
 from nltk.corpus import stopwords
@@ -26,18 +26,17 @@ def imprimir_timestamp(texto):
 app = Flask(__name__)
 
 # Configuración de la ruta de PyTesseract
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = "C:\Program Files\Tesseract-OCR\\tesseract.exe"
 
 # Configuración del idioma al que se desea traducir
 IDIOMA_USUARIO = "es"
 
 # Hace la conexión con la api por medio de internet.
-traductor = LibreTranslateAPI('https://libretranslate.org/')
+traductor = LibreTranslateAPI("https://libretranslate.org/")
 
 # Descargar componentes necesarios en caso de que no estén presentes
-nltk.download('punkt')
-nltk.download('stopwords')
-
+nltk.download("punkt")
+nltk.download("stopwords")
 
 # Inicializar el modelo YOLO
 def inicializar_modelo():
@@ -59,22 +58,22 @@ imprimir_timestamp("Modelo de YOLO cargado.")
 
 def limpiar_texto(texto):
     # Eliminar caracteres no deseados
-    texto = re.sub(r'[^\w\s]', '', texto)
+    texto = re.sub(r"[^\w\s]", "", texto)
 
     # Convertir el texto a minúsculas
     texto = texto.lower()
 
     # Segmentación de palabras y eliminación de palabras vacías
-    stop_words = set(stopwords.words('spanish'))
+    stop_words = set(stopwords.words("spanish"))
     words = word_tokenize(texto)
     filtered_words = [word for word in words if word not in stop_words]
-    texto = ' '.join(filtered_words)
+    texto = " ".join(filtered_words)
 
     return texto
 
 
 def detectar_idioma_y_traducir(texto):
-    if texto != '':
+    if texto != "":
         try:
             idioma_detectado = detect(texto)
             if idioma_detectado != IDIOMA_USUARIO:
@@ -91,6 +90,36 @@ def traducir_texto(texto, idioma_original):
         return traduccion
     except Exception as e:
         print("Error con la solicitud de la API de traducción:", str(e))
+
+
+@app.route("/")
+def home():
+    return render_template("inicio.html")
+
+
+@app.route("/paginaPrincipal")
+def main():
+    return render_template("principal.html")
+
+
+@app.route("/iniciarSesion")
+def login():
+    return render_template("iniciarSesion.html")
+
+
+@app.route("/registropt1")
+def singUp1():
+    return render_template("registro1.html")
+
+
+@app.route("/registropt2")
+def singUp2():
+    return render_template("registro2.html")
+
+
+@app.route("/camara")
+def cameraView():
+    return render_template("home.html")
 
 
 def construir_salida_tesseract(texto):
@@ -144,7 +173,22 @@ def construir_salida_yolo(info):
     return resultado
 
 
-@app.route('/procesar_imagen', methods=['POST'])
+@app.route('/guardar_imagen', methods=['POST'])
+def guardar_imagen():
+    imagen_base64 = request.form['image']
+
+    # Decodificar la imagen base64
+    imagen_decodificada = imagen_base64.split(',')[1].encode()
+
+    # Guardar la imagen en la ruta especificada
+    ruta_guardado = 'images.png'
+    with open(ruta_guardado, 'wb') as archivo:
+        archivo.write(imagen_decodificada)
+
+    return 'Imagen guardada exitosamente'
+
+
+@app.route("/procesar_imagen", methods=["POST"])
 def procesar_imagen():
     # Obtener la imagen y la bandera desde la solicitud POST
     imprimir_timestamp("Obteniendo imagen y bandera desde el servidor.")
@@ -176,7 +220,7 @@ def procesar_imagen():
     texto = ""
 
     # Solo detectar texto si el usuario lo quiere
-    if is_detectando_texto.lower() == 'true':
+    if is_detectando_texto:
         # Obtener el texto de la imagen
         imprimir_timestamp("Analizando imagen con PyTesseract.")
         texto = pytesseract.image_to_string(imagen)
@@ -202,5 +246,5 @@ def procesar_imagen():
     return jsonify(resultado=salida)
 
 
-if __name__ == "__main__":
-    app.run()
+if __name__ == "_main_":
+    app.run(debug=True)
