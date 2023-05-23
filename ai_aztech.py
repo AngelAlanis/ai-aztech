@@ -13,9 +13,14 @@ from langdetect import detect
 from libretranslatepy import LibreTranslateAPI
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from PIL import Image
 
 from aztech_utils import objetos_plural, objetos_singular
+
+
+def imprimir_timestamp(texto):
+    formato = "%H:%M:%S.%f"
+    print("[ai_aztech]", datetime.now().strftime(formato)[:-3], texto)
+
 
 # Configuración de la ruta de PyTesseract
 pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
@@ -44,7 +49,28 @@ def inicializar_modelo():
 
 
 # Inicializar el modelo YOLO una vez al iniciar la aplicación
+imprimir_timestamp("Inicializando modelo de YOLO.")
 modelo_yolo = inicializar_modelo()
+imprimir_timestamp("Modelo de YOLO cargado.")
+
+
+def inicializar_camara():
+    # Inicializar la captura del vídeo con la entrada 0
+    cap = cv2.VideoCapture(0)
+
+    # Si la entrada 0 no funciona, intentar con la 1.
+    if not cap.isOpened():
+        cap = cv2.VideoCapture(1)
+    if not cap.isOpened():
+        raise IOError("No se puede abrir el vídeo.")
+
+    return cap
+
+
+# Inicializar la cámara
+imprimir_timestamp("Inicializando cámara.")
+cap = inicializar_camara()
+imprimir_timestamp("Cámara iniciada.")
 
 
 def limpiar_texto(texto):
@@ -133,38 +159,26 @@ def construir_salida_yolo(info):
 
 
 def procesar_video():
+    imprimir_timestamp("Iniciando nueva iteración.")
 
     is_detectando_texto = True
-
-    # Inicializar la captura del vídeo con la entrada 0
-    cap = cv2.VideoCapture(0)
-
-    # Obtener la ruta absoluta del directorio actual
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-
-    # Cargar modelo
-    model = torch.hub.load('ultralytics/yolov5', 'custom',
-                           path=os.path.join(current_dir, 'aztech.pt'))
-
-    # Si la entrada 0 no funciona, intentar con la 1.
-    if not cap.isOpened():
-        cap = cv2.VideoCapture(1)
-    if not cap.isOpened():
-        raise IOError("No se puede abrir el vídeo.")
-
-    # Iniciar contador para la tasa de refresco.
-    contador = 0
 
     # Inicio del main.
     while True:
         # Lectura de frames
+        imprimir_timestamp("Leyendo imagen desde la cámara.")
         ret, frame = cap.read()
+        imprimir_timestamp("Imagen leída")
 
         # Detectar objetos
+        imprimir_timestamp("Analizando objetos con el modelo de YOLO.")
         detect = modelo_yolo(frame)
         info = detect.pandas().xyxy[0]
+        imprimir_timestamp("Análisis de objetos completado.")
 
+        imprimir_timestamp("Construyendo salida de YOLO.")
         info_str = construir_salida_yolo(info)
+        imprimir_timestamp("Salida de YOLO completada.")
 
         # Inicialización de texto
         texto = ""
@@ -172,10 +186,15 @@ def procesar_video():
         # Solo detectar texto si el usuario lo quiere
         if is_detectando_texto:
             # Obtener el texto de la imagen
+            imprimir_timestamp("Analizando imagen con PyTesseract.")
             texto = pytesseract.image_to_string(frame)
+            imprimir_timestamp("Análisis con PyTesseract completado.")
             if texto:
+                imprimir_timestamp("Construyendo salida de PyTesseract.")
                 texto = construir_salida_tesseract(texto)
+                imprimir_timestamp("Salida de PyTesseract construida.")
 
+        imprimir_timestamp("Construyendo string de salida.")
         if info_str and not texto:  # Si detectó objetos y no texto
             salida = info_str
         elif info_str and texto:  # Si detectó objetos y texto
@@ -184,6 +203,7 @@ def procesar_video():
             salida = texto
         else:  # Si no detectó objetos ni texto
             salida = ""
+        imprimir_timestamp("String de salida construído.")
 
         imgH, imgW, _ = frame.shape
 
