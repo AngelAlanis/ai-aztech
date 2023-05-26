@@ -121,8 +121,11 @@ def construir_salida_tesseract(texto):
 
 
 def construir_salida_yolo(info):
+    # Filtrar detecciones con un porcentaje de seguridad mayor a 50
+    info_filtrada = info[info['confidence'] > 0.5]
+
     # Mostrar las detecciones en la imagen
-    lista_labels = info.iloc[:, 6].to_string(index=False)
+    lista_labels = info_filtrada.iloc[:, 6].to_string(index=False)
 
     # Retornar vacío si no se encontró nada.
     if lista_labels.strip() == "Series([], )":
